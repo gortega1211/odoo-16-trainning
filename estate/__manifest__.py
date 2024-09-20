@@ -10,9 +10,9 @@
     Module to bussiness case - Real Estate.
     """,
     # data files always loaded at installation
-    # 'data': [
-    #     'views/mymodule_view.xml',
-    # ],
+    'data': [
+        'security/ir.model.access.csv',
+    ],
     # data files containing optionally loaded demonstration data
     # 'demo': [
     #     'demo/demo_data.xml',
