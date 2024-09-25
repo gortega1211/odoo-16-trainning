@@ -7,13 +7,13 @@ class EstateProperty(models.Model):
     _description = "Estate Property Model"
     _order = 'id desc'
 
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(string="Title", required=True)
     description = fields.Text(string="Description")
-    postcode = fields.Char(string="PostCode")
-    date_availability = fields.Date(string="Date Availability", copy=False, default=fields.Date.today() + timedelta(days=90))
+    postcode = fields.Char(string="Postcode")
+    date_availability = fields.Date(string="Available From", copy=False, default=fields.Date.today() + timedelta(days=90))
     expected_price = fields.Float(string="Expected Price", digits=(12, 3), required=True)
     selling_price = fields.Float(string="Selling Price", digits=(12, 3), readonly=True, copy=False)
-    bedrooms = fields.Integer(string="BedRooms", default=2)
+    bedrooms = fields.Integer(string="Bedrooms", default=2)
     living_area = fields.Integer(string="Living Area")
     facades = fields.Integer(string="Facades")
     garage = fields.Boolean(string="Garage")
