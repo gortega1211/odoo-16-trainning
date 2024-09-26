@@ -7,7 +7,7 @@ class EstateProperty(models.Model):
     _description = "Model Estate Property"
     _order = 'id desc'
 
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(string="Title", required=True)
     description = fields.Text(string="Description")
     postcode = fields.Char(string="PostCode")
     date_availability = fields.Date(string="Date Availability", copy=False, default=fields.Date.today() + timedelta(days=90))
