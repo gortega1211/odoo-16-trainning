@@ -1,6 +1,11 @@
-from odoo import models, fields
+from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 from datetime import timedelta
+
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class EstateProperty(models.Model):
     _name = "estate.property"
@@ -38,3 +43,35 @@ class EstateProperty(models.Model):
     salesman_id = fields.Many2one(comodel_name="res.users", string="Salesman", default=lambda self: self.env.user)
     tag_ids = fields.Many2many(comodel_name="estate.property.tag", string="Property Tags")
     offer_ids = fields.One2many(comodel_name="estate.property.offer", inverse_name="property_id", string="Offers")
+    total_area = fields.Integer(string="Total Area", compute="_compute_total_area")
+    best_price = fields.Float(strinf="Best Price", digits=(12, 3), compute="_compute_best_price")
+
+    @api.depends("living_area","garden_area")
+    def _compute_total_area(self):
+        for record in self:
+            record.total_area = record.living_area + record.garden_area
+        pass
+
+    @api.depends("offer_ids")
+    def _compute_best_price(self):
+        for record in self:      
+            record.best_price = max(record.offer_ids.mapped('price')) if record.offer_ids else 0.0
+
+    @api.onchange("garden")
+    def _onchange_garden(self):
+        self.garden_area = 10 if self.garden else 0
+        self.garden_orientation = "north" if self.garden else False
+
+    def sold_property(self):
+        for record in self:
+            if record.state == "cancel":
+                raise UserError("Canceled properties can't be sold")
+            record.state = "sold"
+        return True
+
+    def cancel_property(self):
+        for record in self:
+            if record.state == "sold":
+                raise UserError("Solded properties can't be cancel.")
+            record.state = "cancel"
+        return True

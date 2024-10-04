@@ -15,6 +15,9 @@
         <field name="model">estate.property.type</field>
         <field name="arch" type="xml">
             <form string="Property Form">
+                <header>
+                    <button name="%(estate.estate_property_action)d" type="action" string="Proeerties" class="btn btn-primary"/>
+                </header>
                 <sheet>
                     <div class="oe_title">
                         <h1 class="mb32">
