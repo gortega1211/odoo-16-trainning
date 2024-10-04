@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 from datetime import timedelta
 
@@ -52,7 +53,32 @@ class EstateProperty(models.Model):
 
     @api.depends("offer_ids")
     def _compute_best_price(self):
-        for record in self:      
+        for record in self:
             record.best_price = max(record.offer_ids.mapped('price')) if record.offer_ids else 0.0
 
-            
+    @api.onchange("garden")
+    def _onchange_garden(self):
+        self.garden_area = 10 if self.garden else 0
+        self.garden_orientation = "north" if self.garden else False
+
+        # if not self.garden:
+        #     return {
+        #         'warning': {
+        #             'title': "Warning",
+        #             'message': f'The property: {self.name}, doesn\'t have a garden!'
+        #         }
+        #     }
+
+    def sold_property(self):
+        for record in self:
+            if record.state == "cancel":
+                raise UserError("Canceled properties can't be sold.")
+            record.state = "sold"
+        return True
+
+    def cancel_property(self):
+        for record in self:
+            if record.state == "sold":
+                raise UserError("Solded properties can't be cancel.")
+            record.state = "cancel"
+        return True

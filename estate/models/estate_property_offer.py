@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 from datetime import timedelta
 
@@ -26,3 +27,20 @@ class EstatePropertyOffer(models.Model):
         for record in self:
             validity_timedelta = record.date_deadline - record.create_date.date()
             record.validity = validity_timedelta.days
+
+    def accept_offer(self):
+        for record in self:
+            if record.property_id.state == "sold":
+                raise UserError("This property has already been sold!")
+            if record.property_id.state == "cancel":
+                raise UserError("This property is canceled!")
+            record.property_id.buyer_id = record.partner_id
+            record.property_id.selling_price = record.price
+            record.property_id.state = "sold"
+            record.status = "accepted"
+        return True
+
+    def refuse_offer(self):
+        for record in self:
+            record.status = "refused"
+        return True
