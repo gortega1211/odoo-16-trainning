@@ -5,14 +5,16 @@
         <field name="name">view.estate.property.offer.tree</field>
         <field name="model">estate.property.offer</field>
         <field name="arch" type="xml">
-            <tree string="List Property Offers">
+            <tree string="List Property Offers" editable="top" decoration-danger="status == 'refused'" decoration-success="status == 'accepted'">
                 <field name="price"/>
                 <field name="partner_id"/>
                 <field name="validity"/>
                 <field name="date_deadline"/>
-                <button name="accept_offer" type="object" icon="fa-check" title="Accept" />
-                <button name="refuse_offer" type="object" icon="fa-times" title="Refuse" />
-                <field name="status"/>
+                <!-- <button name="accept_offer" type="object" icon="fa-check" title="Accept" attrs="{'invisible': [('status', 'in', ['accepted', 'refused'])]}" /> -->
+                <!-- <button name="refuse_offer" type="object" icon="fa-times" title="Refuse" attrs="{'invisible': [('status', 'in', ['accepted', 'refused'])]}" /> -->
+                <button name="accept_offer" type="object" icon="fa-check" title="Accept" attrs="{'invisible': [('status', '!=', False)]}" />
+                <button name="refuse_offer" type="object" icon="fa-times" title="Refuse" attrs="{'invisible': [('status', '!=', False)]}" />
+                <field name="status" invisible="1"/>
             </tree>
         </field>
     </record>

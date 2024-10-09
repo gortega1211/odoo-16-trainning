@@ -5,16 +5,17 @@
         <field name="name">view.estate.property.tree</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
-            <tree string="List Properties">
-                <field name="name"/>
-                <field name="property_type_id"/>
-                <field name="postcode"/>
-                <field name="bedrooms"/>
-                <field name="living_area"/>
-                <field name="expected_price"/>
-                <field name="selling_price"/>
-                <field name="date_availability"/>
-                <field name="tag_ids" widget="many2many_tags"/>
+            <tree string="List Properties" default_order="bedrooms desc" decoration-danger="state == 'cancel'" decoration-muted="state == 'sold'" decoration-success="state in ['received', 'accepted']" decoration-bf="state == 'accepted'">
+                <field name="name" optional="show" />
+                <field name="property_type_id" optional="show" />
+                <field name="postcode" optional="show" />
+                <field name="bedrooms" optional="show" />
+                <field name="living_area" optional="show" />
+                <field name="expected_price" optional="show" />
+                <field name="selling_price" optional="show" />
+                <field name="date_availability" optional="hide"/>
+                <field name="tag_ids" widget="many2many_tags" optional="show"/>
+                <field name="state" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -25,8 +26,10 @@
         <field name="arch" type="xml">
             <form string="Property Form">
                 <header>
-                    <button name="sold_property" type="object" string="Sold" class="btn btn-success" icon="fa-handshake-o" />
-                    <button name="cancel_property" type="object" string="Cancel" class="btn btn-danger" icon="fa-thumbs-o-down" />
+                    <button name="sold_property" type="object" string="Sold" states="new,received" class="btn btn-secondary" icon="fa-handshake-o" />
+                    <button name="sold_property" type="object" string="Sold" states="accepted" class="btn btn-primary" icon="fa-handshake-o" /> <!-- ! -->
+                    <button name="cancel_property" type="object" string="Cancel" states="new,received,accepted" class="btn btn-secondary" icon="fa-thumbs-o-down" />
+                    <!-- <field name="state" widget="statusbar" statusbar_visible="new,received,accepted,sold"/> -->
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -36,12 +39,12 @@
                         <h1>
                             <field name="name" class="mb16"/>
                         </h1>
-                        <field name="tag_ids" widget="many2many_tags"/>
+                        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" />
                     </div>
                     <group>
                         <group>
                             <field name="state"/>
-                            <field name="property_type_id"/>
+                            <field name="property_type_id" options="{'no_create': True, 'no_open': True}"/>
                             <field name="postcode"/>
                             <field name="date_availability"/>
                         </group>
@@ -60,13 +63,14 @@
                                 <field name="facades"/>
                                 <field name="garage"/>
                                 <field name="garden"/>
-                                <field name="garden_area"/>
-                                <field name="garden_orientation"/>
+                                <field name="garden_area" attrs="{'invisible': [('garden', '=', False)]}"/>
+                                <field name="garden_orientation" attrs="{'invisible': [('garden', '=', False)]}"/>
                                 <field name="total_area"/>
                             </group>
                         </page>
                         <page string="Offers">
-                            <field name="offer_ids" />
+                            <field name="offer_ids" attrs="{'readonly': [('state', 'in', ['accepted', 'sold', 'cancel'])]}" />
+                            <!-- <field name="offer_ids" attrs="{'readonly': [('state', 'not in', ['new', 'received'])]}" /> -->
                         </page>
                         <page string="Other Info">
                             <group>
@@ -90,10 +94,10 @@
                 <field name="postcode"/>
                 <field name="expected_price"/>
                 <field name="bedrooms"/>
-                <field name="living_area"/>
+                <field name="living_area" filter_domain="[('living_area', '&gt;=', self)]" />
                 <field name="facades"/>
-                <filter name="Available" domain="[('state', 'in', ['new', 'received'])]"/>
-                <filter name="Too Much Bedrooms" domain="[('bedrooms', '&gt;', 3)]"/>
+                <filter name="available" string="Available" domain="[('state', 'in', ['new', 'received'])]"/>
+                <filter name="too_much_bedrooms" string="Too Much Bedrooms" domain="[('bedrooms', '&gt;', 3)]"/>
                 <group expand="1" string="Group By">
                     <filter string="Postcode" name="postcode" context="{'group_by': 'postcode'}"/>
                     <separator />
@@ -107,6 +111,7 @@
         <field name="name">Estate Properties</field>
         <field name="res_model">estate.property</field>
         <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_available': True, 'search_default_current': True}</field>
     </record>
 
 </odoo>

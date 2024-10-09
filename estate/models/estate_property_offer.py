@@ -6,6 +6,7 @@ from datetime import timedelta
 class EstatePropertyOffer(models.Model):
     _name = "estate.property.offer"
     _description = "Estate Property Offer Model"
+    _order = "price desc"
 
     property_id = fields.Many2one(comodel_name="estate.property", string="Property")
     price = fields.Float(string="Price", digits=(12, 3))
@@ -40,7 +41,7 @@ class EstatePropertyOffer(models.Model):
                 raise UserError("This property is canceled!")
             record.property_id.buyer_id = record.partner_id
             record.property_id.selling_price = record.price
-            record.property_id.state = "sold"
+            record.property_id.state = "accepted"
             record.status = "accepted"
         return True
 

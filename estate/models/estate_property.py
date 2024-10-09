@@ -32,7 +32,7 @@ class EstateProperty(models.Model):
         ("west", "West"),
     ])
     active = fields.Boolean(string="Active", default=True)
-    state = fields.Selection(string="State", default="new", selection=[
+    state = fields.Selection(string="Status", default="new", selection=[
         ("new", "New"),
         ("received", "Offer Received"),
         ("accepted", "Offer Accepted"),
@@ -95,3 +95,8 @@ class EstateProperty(models.Model):
             if not float_is_zero(record.selling_price, precision_digits=3):
                 if float_compare(record.selling_price, record.expected_price * 0.9, precision_digits=3) == -1:
                     raise ValidationError("The selling price must be at least 90% of the expected price! You must reduce the expected price if you want to accept this offer.")
+
+    @api.onchange("offer_ids")
+    def _onchange_offer_ids(self):
+        if self.state in ["new", "received"]:
+            self.state = "received" if len(self.offer_ids) else "new"
